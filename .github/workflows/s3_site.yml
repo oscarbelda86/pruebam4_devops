@@ -1,0 +1,44 @@
+name: Desplegar Sitio web a bucket S3 e Invalidar Cache CloudFront
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      # Validar index.html
+      - name: Validar index.html
+        if: ${{ hashFiles('index.html') != '' }}
+        run: echo "index.html existe!"
+
+      # Validar error.html
+      - name: Validar error.html
+        if: ${{ hashFiles('error.html') != '' }}
+        run: echo "error.html existe!"
+
+      # Set up AWS CLI
+      - name: Configurar Credenciales AWS
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-2
+
+      # Upload files to S3 bucket
+      - name: Sincronizar archivos a bucket s3
+        run: |
+          aws s3 sync build s3://${{secrets.AWS_SECRET_BUCKET}} --delete
+
+      # Invalidate CloudFront cache
+      - name: Invalidate CloudFront Cache
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
+            --paths "/*"
