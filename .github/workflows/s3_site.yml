@@ -34,7 +34,9 @@ jobs:
       # Upload files to S3 bucket
       - name: Sincronizar archivos a bucket s3
         run: |
-          aws s3 sync build s3://${{secrets.AWS_SECRET_BUCKET}} --delete
+          aws s3 sync . s3://${{secrets.AWS_SECRET_BUCKET}} --delete
+
+
 
       # Invalidate CloudFront cache
       - name: Invalidate CloudFront Cache
