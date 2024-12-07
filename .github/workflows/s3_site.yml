@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  deploy:
+  validate-files:
     runs-on: ubuntu-latest
 
     steps:
@@ -23,7 +23,11 @@ jobs:
         if: ${{ hashFiles('error.html') != '' }}
         run: echo "error.html existe!"
 
-      # Set up AWS CLI
+  AWS-config-and-upload:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Set up AWS CLI
       - name: Configurar Credenciales AWS
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -37,7 +41,10 @@ jobs:
           aws s3 sync . s3://${{secrets.AWS_SECRET_BUCKET}} --delete
 
 
+  Invalidate-cache:
+    runs-on: ubuntu-lates
 
+    steps:
       # Invalidate CloudFront cache
       - name: Invalidate CloudFront Cache
         run: |
