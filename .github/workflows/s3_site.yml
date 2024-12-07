@@ -25,6 +25,7 @@ jobs:
 
   AWS-config-and-upload:
     runs-on: ubuntu-latest
+    needs: validate-files
 
     steps:
     # Set up AWS CLI
@@ -39,19 +40,6 @@ jobs:
       - name: Sincronizar archivos a bucket s3
         run: |
           aws s3 sync . s3://${{secrets.AWS_SECRET_BUCKET}} --delete
-
-
-  Invalidate-cache:
-    runs-on: ubuntu-lates
-
-    steps:
-    # Set up AWS CLI
-      - name: Configurar Credenciales AWS
-        uses: aws-actions/configure-aws-credentials@v2
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-2
 
     # Invalidate CloudFront cache
       - name: Invalidate CloudFront Cache
